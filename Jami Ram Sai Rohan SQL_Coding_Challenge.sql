@@ -152,14 +152,20 @@ WHERE A.EventID = @EventID;
 --   location) in the "Shelters" table. Use parameters to pass the shelter ID and the new information. 
 --   Ensure that the procedure performs the update and handles potential errors, such as an invalid shelter ID
 
-DECLARE @ShelterID INT
-DECLARE @ShelterName VARCHAR(99)
-DECLARE @ShelterLocation VARCHAR(99)
-SET @ShelterID = 9
-SET @ShelterName = 'Douglas Rescue'
-SET @ShelterLocation = 'Trivandrum'
-UPDATE Shelters SET Name = @ShelterName, Location = @ShelterLocation WHERE ShelterID = @ShelterID
-SELECT * FROM Shelters WHERE ShelterID=@ShelterID;
+CREATE PROCEDURE UpdateShelterInformations
+@ShelterID INT,
+@NewName VARCHAR(99),
+@NewLocation VARCHAR(99)
+AS
+BEGIN
+	UPDATE Shelters
+    SET Name = @NewName, Location = @NewLocation
+    WHERE ShelterID = @ShelterID;
+END;
+SELECT * FROM Shelters;
+EXEC UpdateShelterInformations @ShelterID = 8, @NewName = 'Danish Rescue', @NewLocation = 'Ranchi,Jharkand';
+
+SELECT * FROM Shelters;
 
 --8. Write an SQL query that calculates and retrieves the total donation amount for each shelter (by 
 --   shelter name) from the "Donations" table. The result should include the shelter name and the 
@@ -176,15 +182,15 @@ GROUP BY S.Name;
 ALTER TABLE Pets
 ADD OwnerID INT NULL; 
 
-UPDATE Pets SET OwnerID =101 WHERE PetID=1;
+UPDATE Pets SET OwnerID =1 WHERE PetID=1;
 UPDATE Pets SET OwnerID =NULL WHERE PetID=2;
-UPDATE Pets SET OwnerID =102 WHERE PetID=3;
+UPDATE Pets SET OwnerID =2 WHERE PetID=3;
 UPDATE Pets SET OwnerID =NULL WHERE PetID=4;
-UPDATE Pets SET OwnerID =103 WHERE PetID=5;
-UPDATE Pets SET OwnerID =104 WHERE PetID=6;
+UPDATE Pets SET OwnerID =3 WHERE PetID=5;
+UPDATE Pets SET OwnerID =4 WHERE PetID=6;
 UPDATE Pets SET OwnerID =NULL WHERE PetID=7;
-UPDATE Pets SET OwnerID =105 WHERE PetID=8;
-UPDATE Pets SET OwnerID =106 WHERE PetID=9;
+UPDATE Pets SET OwnerID =6 WHERE PetID=8;
+UPDATE Pets SET OwnerID =7 WHERE PetID=9;
 UPDATE Pets SET OwnerID =NULl WHERE PetID=10;
 SELECT * FROM Pets;
 
@@ -209,7 +215,7 @@ WHERE (Age BETWEEN 1 AND 3) OR (Age > 5);
 --12. Retrieve a list of pets and their respective shelters where the pets are currently available for 
 --adoption.
 
-SELECT P.Name AS [PET NAME], S. Name AS [ShelterName]
+SELECT P.Name AS [Pet Name], S. Name AS [Shelter Name]
 FROM Pets P
 JOIN Shelters S ON P. PetID = S. ShelterID
 WHERE AvailableForAdoption = 1;
@@ -220,7 +226,7 @@ SELECT COUNT(DISTINCT P.ParticipantID) AS [Total Participants]
 FROM Shelters S
 JOIN AdoptionEvents E ON S.Location = E.Location
 JOIN Participants P ON E.EventID = P.EventID
-WHERE S.Location = 'Visakhapatnam';
+WHERE S.Location = 'Mumbai';
 
 --14. Retrieve a list of unique breeds for pets with ages between 1 and 5 years
 
@@ -311,12 +317,8 @@ JOIN Pets P2 ON P1.Breed = P2.Breed AND P1.PetID <> P2.PetID;
 --19. List all possible combinations of shelters and adoption events
 
 SELECT
-    S.ShelterID,
-    S.Name,
-    AE.EventID,
-    AE.EventName,
-    AE.EventDate,
-    AE.Location
+    S.*,
+    AE.*
 FROM
     Shelters S
 CROSS JOIN
